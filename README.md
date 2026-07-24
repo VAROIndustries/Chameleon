@@ -122,7 +122,7 @@ logging off. Log: `Chameleon-Portable.log` beside the script.
 
 ## 2C. System tray — `Chameleon-Tray.ps1`
 
-A tray icon with a coloured dot:
+A lizard 🦎 tray icon, tinted by state:
 
 - 🟢 **green** — target device present, on `wifiWhenConnected`
 - ⚪ **grey** — device absent, on `wifiWhenDisconnected`
@@ -130,7 +130,10 @@ A tray icon with a coloured dot:
 Right-click for the menu:
 
 - **Auto-switch** — toggle automatic switching on/off
-- **Switch to '…' now** — force either network manually
+- **Force docked / undocked network** — switch either network manually
+- **Settings…** — edit the device match and Wi-Fi profiles in-app (saves to
+  `Chameleon.config.json`); also opens on double-click of the tray icon
+- **About** — version and links
 - **Open log** — view the activity log
 - **Exit**
 

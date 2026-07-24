@@ -29,17 +29,22 @@ $iconOut = Join-Path $iconDir 'chameleon.ico'
 if (-not (Test-Path $src)) { throw "Source not found: $src" }
 New-Item -ItemType Directory -Force -Path $distDir, $iconDir | Out-Null
 
-# --- Generate a green-dot .ico if missing (matches the tray's "docked" colour) ---
+# --- Generate a lizard 🦎 .ico if missing (matches the tray icon) ---
 if (-not (Test-Path $iconOut)) {
     Add-Type -AssemblyName System.Drawing
     $bmp = New-Object System.Drawing.Bitmap 32, 32
     $g   = [System.Drawing.Graphics]::FromImage($bmp)
-    $g.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
+    $g.SmoothingMode     = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
+    $g.TextRenderingHint = [System.Drawing.Text.TextRenderingHint]::AntiAliasGridFit
     $g.Clear([System.Drawing.Color]::Transparent)
+    $font  = New-Object System.Drawing.Font('Segoe UI Emoji', 24, [System.Drawing.FontStyle]::Regular, [System.Drawing.GraphicsUnit]::Pixel)
+    $sf    = New-Object System.Drawing.StringFormat
+    $sf.Alignment = [System.Drawing.StringAlignment]::Center
+    $sf.LineAlignment = [System.Drawing.StringAlignment]::Center
     $brush = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::LimeGreen)
-    $g.FillEllipse($brush, 3, 3, 25, 25)
-    $g.DrawEllipse((New-Object System.Drawing.Pen ([System.Drawing.Color]::Black), 2), 3, 3, 25, 25)
-    $g.Dispose(); $brush.Dispose()
+    $g.DrawString([System.Char]::ConvertFromUtf32(0x1F98E), $font, $brush,
+        (New-Object System.Drawing.RectangleF 0, 0, 32, 32), $sf)
+    $g.Dispose(); $brush.Dispose(); $font.Dispose(); $sf.Dispose()
     $icon = [System.Drawing.Icon]::FromHandle($bmp.GetHicon())
     $fs = [System.IO.File]::Create($iconOut)
     $icon.Save($fs)

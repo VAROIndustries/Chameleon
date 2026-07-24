@@ -43,17 +43,28 @@ function Write-Log {
     Add-Content -Path $logFile -Value $line
 }
 
+# Resolve netsh by full path so it works even when System32 isn't on PATH.
+$netsh = Join-Path $env:WINDIR 'System32\netsh.exe'
+if (-not (Test-Path $netsh)) { $netsh = 'netsh' }
+
+function Get-CurrentWifiProfile {
+    $line = (& $netsh wlan show interfaces | Select-String '^\s*Profile\s*:' | Select-Object -First 1).Line
+    if ($line) { ($line -split ':', 2)[1].Trim() } else { '' }
+}
+
 function Set-WifiNetwork {
     param([string]$ProfileName)
 
     # Skip if we already switched to this profile (docking fires many PnP events).
     if ($Global:ChameleonCurrentProfile -eq $ProfileName) { return }
+    # Don't disconnect if we're already on the target network.
+    if ((Get-CurrentWifiProfile) -eq $ProfileName) { $Global:ChameleonCurrentProfile = $ProfileName; return }
     $Global:ChameleonCurrentProfile = $ProfileName
 
     Write-Log "Switching Wi-Fi to '$ProfileName'"
-    netsh wlan disconnect interface="$wifiInterface" | Out-Null
+    & $netsh wlan disconnect interface="$wifiInterface" | Out-Null
     Start-Sleep -Seconds 2
-    netsh wlan connect name="$ProfileName" interface="$wifiInterface" | Out-Null
+    & $netsh wlan connect name="$ProfileName" interface="$wifiInterface" | Out-Null
 }
 
 Write-Log "Chameleon started. Target device match: '$targetDeviceMatch'"
