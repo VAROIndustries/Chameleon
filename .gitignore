@@ -1,0 +1,11 @@
+# Personal config (contains your real device + Wi-Fi profile names)
+Chameleon.config.json
+
+# Local logs
+logs/
+*.log
+
+# OS cruft
+Thumbs.db
+desktop.ini
+.DS_Store
