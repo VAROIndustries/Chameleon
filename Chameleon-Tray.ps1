@@ -29,7 +29,11 @@ $pollSeconds          = 4
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
-$scriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path -Parent $MyInvocation.MyCommand.Path }
+# Resolve our own folder whether run as a .ps1 or compiled to a .exe (ps2exe).
+$scriptDir =
+    if     ($PSScriptRoot)                 { $PSScriptRoot }
+    elseif ($MyInvocation.MyCommand.Path)  { Split-Path -Parent $MyInvocation.MyCommand.Path }
+    else   { Split-Path -Parent ([System.Diagnostics.Process]::GetCurrentProcess().MainModule.FileName) }
 $logFile   = Join-Path $scriptDir 'Chameleon-Tray.log'
 
 # Single source of truth: share Chameleon.config.json with the other scripts if present.

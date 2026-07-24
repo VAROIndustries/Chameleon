@@ -146,6 +146,25 @@ Run it at logon: press <kbd>Win</kbd>+<kbd>R</kbd>, type `shell:startup`, and dr
 shortcut to `Chameleon-Tray.vbs` in that folder. Log: `Chameleon-Tray.log` beside
 the script.
 
+### Build a standalone .exe
+
+Prefer a single executable over the `.ps1` + `.vbs` pair? Compile the tray app with
+[ps2exe](https://github.com/MScholtes/PS2EXE):
+
+```powershell
+Install-Module ps2exe -Scope CurrentUser
+powershell -ExecutionPolicy Bypass -File .\Build-Tray.ps1
+```
+
+This produces `dist\Chameleon-Tray.exe` — a no-console GUI executable with an embedded
+icon. It reads `Chameleon.config.json` (or writes its log) from the folder the `.exe`
+lives in, so keep the config beside it. Put a shortcut to the `.exe` in `shell:startup`
+to run at logon.
+
+> The compiled `.exe` isn't committed (SmartScreen/AV commonly flag unsigned ps2exe
+> binaries). Build it yourself, or grab it from a
+> [Release](https://github.com/VAROIndustries/Chameleon/releases) if one is published.
+
 ---
 
 ## Troubleshooting

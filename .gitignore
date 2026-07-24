@@ -5,6 +5,10 @@ Chameleon.config.json
 logs/
 *.log
 
+# Build outputs (rebuild with Build-Tray.ps1)
+dist/
+assets/*.ico
+
 # OS cruft
 Thumbs.db
 desktop.ini
