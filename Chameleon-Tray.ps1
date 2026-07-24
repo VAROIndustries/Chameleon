@@ -78,6 +78,40 @@ function Save-ChameleonConfig {
     Write-Log "Config saved to $configPath"
 }
 
+# ---- Start-with-Windows (per-user, no admin needed) ----
+$runKey  = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run'
+$runName = 'Chameleon'
+
+function Get-SelfLaunchCommand {
+    $exePath = [System.Diagnostics.Process]::GetCurrentProcess().MainModule.FileName
+    $hostExe = [System.IO.Path]::GetFileName($exePath).ToLower()
+    if ($hostExe -eq 'powershell.exe' -or $hostExe -eq 'pwsh.exe') {
+        # Running as a .ps1 - prefer the silent .vbs launcher (no console window).
+        $vbs = Join-Path $scriptDir 'Chameleon-Tray.vbs'
+        if (Test-Path $vbs) { return "wscript.exe `"$vbs`"" }
+        $ps1 = Join-Path $scriptDir 'Chameleon-Tray.ps1'
+        return "`"$exePath`" -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$ps1`""
+    }
+    # Compiled .exe - launch it directly.
+    return "`"$exePath`""
+}
+
+function Test-StartupEnabled {
+    $null -ne (Get-ItemProperty -Path $runKey -Name $runName -ErrorAction SilentlyContinue)
+}
+
+function Set-Startup {
+    param([bool]$Enabled)
+    if ($Enabled) {
+        if (-not (Test-Path $runKey)) { New-Item -Path $runKey -Force | Out-Null }
+        Set-ItemProperty -Path $runKey -Name $runName -Value (Get-SelfLaunchCommand)
+        Write-Log "Enabled 'Start with Windows'."
+    } else {
+        Remove-ItemProperty -Path $runKey -Name $runName -ErrorAction SilentlyContinue
+        Write-Log "Disabled 'Start with Windows'."
+    }
+}
+
 function Get-CurrentWifiProfile {
     $line = (& $netsh wlan show interfaces | Select-String '^\s*Profile\s*:' | Select-Object -First 1).Line
     if ($line) { ($line -split ':', 2)[1].Trim() } else { '' }
@@ -262,6 +296,18 @@ $autoItem.Add_Click({
     Write-Log "Auto-switch set to $($script:autoSwitch)"
 })
 $menu.Items.Add($autoItem) | Out-Null
+
+$startupItem = New-Object System.Windows.Forms.ToolStripMenuItem "Start with Windows"
+$startupItem.CheckOnClick = $true
+$startupItem.Checked = Test-StartupEnabled
+$startupItem.Add_Click({
+    try { Set-Startup -Enabled $startupItem.Checked }
+    catch {
+        [System.Windows.Forms.MessageBox]::Show("Couldn't update startup setting:`n$($_.Exception.Message)", "Chameleon") | Out-Null
+        $startupItem.Checked = Test-StartupEnabled
+    }
+})
+$menu.Items.Add($startupItem) | Out-Null
 
 $connectItem = New-Object System.Windows.Forms.ToolStripMenuItem "Force docked network"
 $connectItem.Add_Click({ Set-WifiNetwork -ProfileName $wifiWhenConnected -Announce })

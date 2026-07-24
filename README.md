@@ -130,12 +130,18 @@ A lizard 🦎 tray icon, tinted by state:
 Right-click for the menu:
 
 - **Auto-switch** — toggle automatic switching on/off
+- **Start with Windows** — run Chameleon at logon (per-user `Run` key, no admin)
 - **Force docked / undocked network** — switch either network manually
 - **Settings…** — edit the device match and Wi-Fi profiles in-app (saves to
   `Chameleon.config.json`); also opens on double-click of the tray icon
 - **About** — version and links
 - **Open log** — view the activity log
 - **Exit**
+
+> **Start with Windows** points the logon entry at whatever you launched — the
+> `.exe` if you ran the compiled build, or the `.vbs` launcher if you ran the
+> script. Move the app to a permanent location *before* enabling it, since the
+> saved path is absolute.
 
 Balloon tips announce each switch. Edit the config block at the top of the script
 (or drop a shared `Chameleon.config.json` beside it — it takes precedence), then
