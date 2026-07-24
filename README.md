@@ -1,5 +1,10 @@
 # 🦎 Chameleon
 
+**🌐 Tool page: [varo.industries/tools/chameleon](https://varo.industries/tools/chameleon)** — features, screenshots, install, and FAQ.
+
+
+_Built by [VARØ Industries](https://varo.industries/apps#github)_
+
 **Your Wi-Fi, adapted to your surroundings.**
 
 Chameleon watches for a specific device to attach to your Windows 11 machine —
@@ -196,3 +201,9 @@ to run at logon.
 ## License
 
 [MIT](LICENSE) © 2026 VARO Industries
+
+---
+
+## More from VARØ Industries
+
+Free web apps, tools, and open-source projects → [varo.industries/apps](https://varo.industries/apps#github)
