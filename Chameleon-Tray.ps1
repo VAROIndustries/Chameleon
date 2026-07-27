@@ -112,6 +112,19 @@ function Set-Startup {
     }
 }
 
+function Repair-StartupEntry {
+    # The Run value stores an absolute path. If the app is moved or its folder
+    # renamed, Windows silently skips the stale entry at logon - so re-point it
+    # at wherever we're running from now.
+    $current = (Get-ItemProperty -Path $runKey -Name $runName -ErrorAction SilentlyContinue).$runName
+    if (-not $current) { return }
+    $expected = Get-SelfLaunchCommand
+    if ($current -ne $expected) {
+        Set-ItemProperty -Path $runKey -Name $runName -Value $expected
+        Write-Log "Startup entry repaired: '$current' -> '$expected'"
+    }
+}
+
 function Get-CurrentWifiProfile {
     $line = (& $netsh wlan show interfaces | Select-String '^\s*Profile\s*:' | Select-Object -First 1).Line
     if ($line) { ($line -split ':', 2)[1].Trim() } else { '' }
@@ -299,6 +312,7 @@ $menu.Items.Add($autoItem) | Out-Null
 
 $startupItem = New-Object System.Windows.Forms.ToolStripMenuItem "Start with Windows"
 $startupItem.CheckOnClick = $true
+try { Repair-StartupEntry } catch { Write-Log "Could not repair startup entry: $($_.Exception.Message)" }
 $startupItem.Checked = Test-StartupEnabled
 $startupItem.Add_Click({
     try { Set-Startup -Enabled $startupItem.Checked }
